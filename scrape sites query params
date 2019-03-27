@@ -1,0 +1,159 @@
+
+=> vendre cette page comme un "outil" et non pas un "moteur de recherche" => "expérimentez avec les boutons 'stage' ou en tappant stage direct dans les 'job tag'" => les résultats peuvent varier
+=> les résultats dépendent du site lui même et pas de cet outil (gestion de requêtes est perso au site et pas à l'outil)
+=> par défaut (où possible) les résultats sont triés par date avant de les montrer dans cet outil => encore une fois ça dépend du site scrapé
+=> expérimentez vos recherches: aka: 'vue.js' vs 'vue' vs 'vuejs' ...
+=> les résultats de certains sites permettent pas de définir CDI ou CDD etc donc les résultats peuvent ne pas être 'précis'
+=> évitez les selecteurs (boutons) comme CDI ou CDD si vous voulez faire le moins de tri possible et pas obtenir des résultats mal triés par les sites qui renvoient les données.
+    => le choix des boutons peut trop restreindre les retours de certains sites => enlevez les si vous recevez trop peu d'offres de travail
+
+=> pendant que les résultats chargent mettre un générateur de blagues ou citations ?... pour faire patienter la personne
+=> pour les 'types' si ça existe sur le site j'applique sinon non...
+    => mettre ceux là d'une couleur différente
+
+=> remote peut être:	oui -> tri des jobs si possible
+                        non -> aucun tri le truc est juste pas choisi => ! y a pas de false en mode tous les jobs sans remote !
+
+=> types standardised:
+        - CDI: 				        CDI
+        - CDD: 				        CDD
+        - full time: 			    full-time
+        - part time: 			    part-time
+        - internship: 			    internship
+        - freelance/indépendant: 	freelance
+        - intérim: 			        temporary
+
+=> structure query: {tags: [tag1, tag2, ...], type: CDI/CDD..., remote: true/undefined}
+
+Stackoverflow:
+    - job tag (keywords):			        ?q=vue+node
+    - location:				                &l=france
+    - remote:				                &r=true
+    - type:
+        - full-time 			            &j=permanent
+        - contract			                &j=contract
+        - internship			            &j=internship
+    - sort by new:				            &sort=p
+
+Indeed.fr:
+    - job tag (keywords):			        ?q=Vue+node
+    - location: 				            &l=France
+    - type:
+        - CDI:				                &jt=permanent
+        - Temps plein:			            &jt=fulltime
+        - intérim: 			                &jt=temporary
+        - CDD:				                &jt=contract
+        - stage:			                &jt=internship
+        - Temps partiel: 		            &jt=parttime
+        - apprentissage / alternance: 	    &jt=apprenticeship
+        - freelance / indépendant 	        &jt=subcontract
+    - sort by new: 				            &fromage=any&sort=date
+
+LinkedIn:
+	- job tag (keywords): 			        ?keywords=vue.js node.js
+	- location: 				            &location=France
+	- type:
+	    - Full-time:			            &f_JT=F
+		- contract: 			            &f_JT=C
+		- internship: 			            &f_JT=I
+	- sort by new: 				            &sortBy=DD
+
+Pôle emploi:
+	- job tag (keywords): 			        ?motsCles=vue.js,node.js
+	- offresPartenaires:			        &offresPartenaires=true
+	- location (france): 			        &lieux=01P
+	- type:
+	    - CDI: 				                &typeContrat=CDI
+		- CDD:				                &typeContrat=CDD
+		- Mission intermédiaire: 	        &typeContrat=MIS
+		- CDI intermédiaire:		        &typeContrat=DIN
+		- profession libérale: 		        &typeContrat=LIB
+		- temps plein:			            &dureeHebdo=1
+		- temps partiel: 		            &dureeHebdo=2
+	- sort by new: 				            &tri=1
+
+Monster:
+	!! suite à la recherche le site peut indiquer: "Désolé, nous n'avons trouvé aucune offre correspondant à vos critères" => pas scraper si c'est le cas !!
+
+	- job tag (keywords): 			        ?q=vue.js-node.js
+	- location (france): 			        &cy=fr
+	- type:
+	    - intérim/CDD/mission	   	        https://www.monster.fr/emploi/recherche/Interim-ou-CDD-ou-mission_8
+		- CDI:				                https://www.monster.fr/emploi/recherche/CDI_8
+		- Stage/Apprentissage/Alternance: 	https://www.monster.fr/emploi/recherche/Stage-Apprentissage-Alternance_8
+		- Indépendant/Freelance/Saisonnier:	https://www.monster.fr/emploi/recherche/Indépendant-Freelance-Saisonnier_8
+		- temps partiel: 		            https://www.monster.fr/emploi/recherche/Temps-Partiel_8
+		- temps plein:			            https://www.monster.fr/emploi/recherche/Temps-Plein_8
+
+Paris jobs:
+	!! suite à la recherche le site peut indiquer: "0 offres d'emploi pour votre recherche" => pas scraper si c'est le cas !!
+	- job tag (keywords): 			        ?k=vue.js+node.js
+	- type:
+	    - CDD:				                &c=CDD
+		- CDI:				                &c=CDI
+		- stage:			                &c=Stage
+		- travail temporaire		        &c=Travail_temp
+		- alternance			            &c=Alternance
+		- indépendant			            &c=Independant
+		- franchise			                &c=Franchise
+
+Adecco:
+	!! RSS: https://www.adecco.fr/resultats-offres-emploi/m-react/c-intérim/?rss=1 !!
+	- job tag (keywords): 			        https://www.adecco.fr/resultats-offres-emploi/m-nodejs-vuejs/
+	- type:
+	    - CDI:				                https://www.adecco.fr/resultats-offres-emploi/m-nodejs-vuejs/c-cdi/
+		- CDD: 				                https://www.adecco.fr/resultats-offres-emploi/m-react/c-cdd/
+		- intérim: 			                https://www.adecco.fr/resultats-offres-emploi/m-react/c-intérim/
+
+Apec:
+	- job tag (keywords): 			        ?motsCles=vue.js node.js
+	- sort by new: 				            &sortsType=DATE&sortsDirection=DESCENDING
+	- type:
+	    - CDD:				                &typesContrat=101887
+		- CDI:				                &typesContrat=101888
+		- alternance: 			            &typesContrat=20053
+		- intérim:			                &typesContrat=101930
+
+WTTJ:
+	- job tag (keywords): 			        ?query=vue.js node.js
+	- type:
+	    - CDI:				                &refinementList[contract_type_names.fr][0]=CDI
+		- CDD:				                &refinementList[contract_type_names.fr][0]=CDD %2F Temporaire
+	- remote: 				                &toggle[is_remote]=true
+
+Keljob:
+	- job tag (keywords): 			        ?q=vue.js node.js
+	- pas plus vieux que 7j:		        &d=7d
+	- type:
+	    - CDI:				                &c=CDI
+		- CDD:				                &c=CDD
+		- intérim: 			                &c=Intérim
+		- stage:			                &c=Stage
+		- apprentissage/alternance:	        &c=Apprentissage
+		- indépendant/freelance:	        &c=Indépendant %2F Freelance %2F Autoentrepreneur
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

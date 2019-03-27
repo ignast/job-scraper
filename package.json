@@ -1,0 +1,25 @@
+{
+  "name": "job-scraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ignast/job-scraper.git"
+  },
+  "author": "Ignas Tornau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ignast/job-scraper/issues"
+  },
+  "homepage": "https://github.com/ignast/job-scraper#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "puppeteer": "^1.13.0",
+    "rss-parser": "^3.7.0"
+  }
+}
