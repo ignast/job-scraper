@@ -13,7 +13,258 @@ let cheerio = require('cheerio')
 // stackOverflowRss({tags: ['node.js', 'vue.js'], type: '', remote: undefined})
 // scrapeLinkedin({tags: ['vue.js'], type: 'CDI', remote: undefined})
 // scrapePoleEmploi({tags: ['vue.js', 'javascript'], type: 'CDI', remote: undefined})
-scrapeParisJob({tags: ['vue.js', 'javascript'], type: 'CDI', remote: undefined})
+// scrapeParisJob({tags: ['vue.js', 'node.js'], type: '', remote: undefined})
+// scrapeAdecco({tags: ['vue.js'], type: '', remote: undefined})
+// scrapeApec({tags: ['vue.js', 'node.js'], type: '', remote: undefined})
+// scrapeWTTJ({tags: ['vue', 'node'], type: '', remote: undefined})
+// scrapeKelJob({tags: ['vue.js'], type: '', remote: undefined})
+
+async function scrapeKelJob(parameters)
+{
+    const tagsArray = parameters.tags
+    const type = parameters.type
+
+    // No remote option in Indeed
+    // const remote = parameters.remote === undefined ? '' : '&r=true'
+
+    let tagString = tagStringGenerator(tagsArray, ' ')
+    let jobType = ''
+
+    switch (type)
+    {
+        case 'CDI':
+            jobType = '&c=CDI'
+            break
+
+        case 'CDD':
+            jobType = '&c=CDD'
+            break
+
+        case 'temporary':
+            jobType = '&c=Intérim'
+            break
+
+        case 'internship':
+            jobType = '&c=Stage'
+            break
+
+        case 'freelance':
+            jobType = '&c=Indépendant %2F Freelance %2F Autoentrepreneur'
+            break
+
+        default:
+            jobType = ''
+            break
+    }
+
+    const URL = 'https://www.keljob.com/recherche?q=' + tagString + jobType + '&d=7d'
+
+    console.log(URL)
+
+    const request = await axios.get(URL)
+
+    let jobs = []
+    const parse = cheerio.load(request.data)
+
+    const title = parse('h2.offre-title > a > span')
+    const company = parse('.offre-company > a > span')
+    const summary = parse('p.job-description')
+
+    for (let i = 0; i < title.length; i++)
+    {
+        jobs.push({
+            title: title[i].children[0].data,
+            link: 'https://www.keljob.com' + title[i].parent.attribs.href,
+            company: company[i].children[0].data,
+            description: summary[i].children[0].data.replace(/\n|\r/g, "")
+        })
+    }
+
+    console.log(jobs)
+}
+
+async function scrapeWTTJ(parameters)
+{
+    const tagsArray = parameters.tags
+    const type = parameters.type
+    const remote = parameters.remote === undefined ? '' : '&toggle[is_remote]=true'
+
+    let tagString = tagStringGenerator(tagsArray, ' ')
+    let jobType = ''
+
+    switch (type)
+    {
+        case 'CDI':
+            jobType = '&refinementList[contract_type_names.fr][0]=CDI'
+            break
+
+        case 'CDD':
+            jobType = '&refinementList[contract_type_names.fr][0]=CDD %2F Temporaire'
+            break
+
+        case 'internship':
+            jobType = '&refinementList[contract_type_names.fr][0]=Stage'
+            break
+
+        case 'part-time':
+            jobType = '&refinementList[contract_type_names.fr][0]=Temps partiel'
+            break
+
+        default:
+            jobType = ''
+            break
+    }
+
+    const URL = 'https://www.welcometothejungle.co/jobs?query=' + tagString + jobType + remote
+
+    console.log(URL)
+
+    const browser = await puppeteer.launch({
+        'args': ['--incognito']
+    })
+    const page = await browser.newPage()
+
+    await page.setRequestInterception(true)
+
+    page.on('request', (req) =>
+    {
+        if (req.resourceType() === 'stylesheet' || req.resourceType() === 'font' || req.resourceType() === 'image')
+        {
+            req.abort()
+        } else
+        {
+            req.continue()
+        }
+    })
+
+    await page.goto(URL, {waitUntil : 'networkidle2'})
+
+    const jobs = await page.evaluate(() =>
+    {
+        return Array.from(document.querySelectorAll('a.sc-jtRlXQ')).map(job =>
+            ({
+                title: job.childNodes[1].childNodes[1].childNodes[1].textContent,
+                company: job.childNodes[1].childNodes[1].childNodes[0].textContent,
+                link: job.href
+            }))
+    })
+
+    console.log(jobs)
+
+    await browser.close()
+}
+
+async function scrapeApec(parameters)
+{
+    const tagsArray = parameters.tags
+    const type = parameters.type
+
+    let tagString = tagStringGenerator(tagsArray, ' ')
+    let jobType = ''
+
+    switch (type)
+    {
+        case 'CDI':
+            jobType = '&typesContrat=101888'
+            break
+
+        case 'CDD':
+            jobType = '&typesContrat=101887'
+            break
+
+        case 'temporary':
+            jobType = '&typesContrat=101930'
+            break
+
+        default:
+            jobType = ''
+            break
+    }
+
+    const URL = 'https://cadres.apec.fr/home/mes-offres/recherche-des-offres-demploi/liste-des-offres-demploi.html?motsCles='
+                + tagString
+                + jobType
+                + '&sortsType=DATE&sortsDirection=DESCENDING&nbParPage=20'
+
+    console.log(URL)
+
+    const browser = await puppeteer.launch({
+        'args': ['--incognito']
+    })
+    const page = await browser.newPage()
+
+    await page.setRequestInterception(true)
+
+    page.on('request', (req) =>
+    {
+        if (req.resourceType() === 'stylesheet' || req.resourceType() === 'font' || req.resourceType() === 'image')
+        {
+            req.abort()
+        } else
+        {
+            req.continue()
+        }
+    })
+
+    await page.goto(URL, {waitUntil : 'networkidle2'})
+
+    const jobs = await page.evaluate(() =>
+    {
+        return Array.from(document.querySelectorAll('div.offre')).map(job =>
+            ({
+                title: job.children[0].firstElementChild.childNodes[1].textContent.split('\n\n\n\n\n')[0].replace(/\n|\r/g, ""),
+                company: job.children[0].firstElementChild.childNodes[1].textContent.split('\n\n\n\n\n')[1].replace(/\n|\r/g, ""),
+                description: job.children[0].firstElementChild.childNodes[6].textContent.replace(/\n|\r/g, ""),
+                link: 'https://cadres.apec.fr' + job.children[0].childNodes[1].children[0].firstElementChild.pathname
+            }))
+    })
+
+    console.log(jobs)
+
+    await browser.close()
+}
+
+async function scrapeAdecco(parameters)
+{
+    const tagsArray = parameters.tags
+    const type = parameters.type
+
+    let tagString = 'm-' + tagStringGenerator(tagsArray, '-').replace('.', '')
+    let jobType = ''
+
+    switch (type)
+    {
+        case 'CDI':
+            jobType = '/c-cdi/'
+            break
+
+        case 'CDD':
+            jobType = '/c-cdd/'
+            break
+
+        case 'temporary':
+            jobType = '/c-intérim/'
+            break
+
+        default:
+            jobType = ''
+            break
+    }
+
+    const URL = 'https://www.adecco.fr/resultats-offres-emploi/' + tagString + jobType + '?display=15&rss=1'
+
+    console.log(URL)
+
+    let jobs = []
+    let feed = await parser.parseURL(URL)
+
+    feed.items.forEach(item =>
+    {
+        jobs.push({title: item.title, link: item.link, description: item.contentSnippet})
+    })
+
+    console.log(jobs)
+}
 
 /**
  * TODO: Website is down, need to finish this code
@@ -58,6 +309,29 @@ async function scrapeParisJob(parameters)
     const URL = 'https://www.parisjob.com/emplois/recherche.html?k=' + tagString + jobType
 
     console.log(URL)
+
+    const request = await axios.get(URL)
+
+    let jobs = []
+    const parse = cheerio.load(request.data)
+
+    const title = parse('.annonce > h1 > .lien-annonce')
+    const company = parse('.nom_entreprise > span')
+
+    // console.log(title[0].attribs.title)
+    // console.log('https://www.parisjob.com' + title[0].attribs.href)
+    // console.log(company[0].children[0].data.trim())
+
+    for(let  i = 0; i < title.length; i ++)
+    {
+        jobs.push({
+            title: title[i].attribs.title,
+            link: 'https://www.parisjob.com' + title[i].attribs.href,
+            company: company[i].children[0].data.trim(),
+        })
+    }
+
+    console.log(jobs)
 }
 
 async function scrapePoleEmploi(parameters)

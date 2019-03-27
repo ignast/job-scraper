@@ -98,7 +98,7 @@ Paris jobs:
 		- franchise			                &c=Franchise
 
 Adecco:
-	!! RSS: https://www.adecco.fr/resultats-offres-emploi/m-react/c-intérim/?rss=1 !!
+	!! RSS: https://www.adecco.fr/resultats-offres-emploi/c-intérim/m-react?rss=1 !!
 	- job tag (keywords): 			        https://www.adecco.fr/resultats-offres-emploi/m-nodejs-vuejs/
 	- type:
 	    - CDI:				                https://www.adecco.fr/resultats-offres-emploi/m-nodejs-vuejs/c-cdi/
@@ -119,6 +119,8 @@ WTTJ:
 	- type:
 	    - CDI:				                &refinementList[contract_type_names.fr][0]=CDI
 		- CDD:				                &refinementList[contract_type_names.fr][0]=CDD %2F Temporaire
+		- Stage:                            &refinementList[contract_type_names.fr][0]=Stage
+		- temps partiel:                    &refinementList[contract_type_names.fr][0]=Temps partiel
 	- remote: 				                &toggle[is_remote]=true
 
 Keljob:
